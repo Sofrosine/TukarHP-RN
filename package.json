@@ -28,9 +28,9 @@
     "react-native-safe-area-context": "^0.7.3",
     "react-native-screens": "^2.2.0",
     "react-native-sensors": "^5.3.3",
+    "react-native-status-bar-height": "^2.5.0",
     "react-native-system-setting": "^1.7.4",
-    "react-native-vitals": "^2.0.1",
-    "react-native-volume-control": "^1.0.1"
+    "react-native-vitals": "^2.0.1"
   },
   "devDependencies": {
     "@babel/core": "^7.6.2",

@@ -10,11 +10,13 @@ import {
   Modal as ModalCamera,
   Animated,
   PanResponder,
+  Dimensions,
 } from 'react-native';
 import {
   LongPressGestureHandler,
   State,
   TapGestureHandler,
+  PanGestureHandler,
 } from 'react-native-gesture-handler';
 import BackIcon from '../../../assets/icon/kembali.png';
 import Logo from '../../../assets/logo/logo.png';
@@ -40,8 +42,14 @@ import NetInfo from '@react-native-community/netinfo';
 import Modal from 'react-native-modal';
 import {RNCamera} from 'react-native-camera';
 import {widthPercentageToDP as wp} from 'react-native-responsive-screen';
+import {getStatusBarHeight} from 'react-native-status-bar-height';
 
-const Testing = () => {
+const {width} = Dimensions.get('screen');
+
+const ITEM_SIZE = width / 8;
+const STATUS_BAR_HEIGHT = getStatusBarHeight();
+
+const Testing = ({navigation}) => {
   const [deviceName, setDeviceName] = useState('');
   const [isVisibleWifi, setVisibleWifi] = useState(false);
   const [capacity, setCapacity] = useState('On Process');
@@ -399,96 +407,76 @@ const Testing = () => {
     clickVal === arrTouch.length ? touchSuccessHandler() : null;
   }, [clickVal]);
 
-  // const panResponder = PanResponder.create({
-  //   // Enable Pan Handler
-  //   onStartShouldSetPanResponder: (evt, gestureState) => true,
-  //   onStartShouldSetPanResponderCapture: (evt, gestureState) => true,
-  //   onMoveShouldSetPanResponder: (evt, gestureState) => true,
-  //   onMoveShouldSetPanResponderCapture: (evt, gestureState) => true,
-  //   onPanResponderGrant: (evt, gestureState) => {
-  //     console.log('hahahaha');
-  //     console.log('hihihi');
-  //     // handlePressBtn(arrTouch[1],1)
-  //   },
-  //   onPanResponderRelease: (evt, gestureState) => {
-  //     // alert('haha');
-  //     // console.log('hahahaha')
-  //   },
-  //   onPanResponderMove: (evt, gestureState) => {
-  //     console.log('moVEEEE!!');
-  //   },
-  //   onPanResponderTerminationRequest: (evt, gestureState) => true,
-  //   onPanResponderTerminate: (evt, gestureState) => {
-  //     console.log('hiahiahia');
-  //   },
-  // });
+  //START
+  const [touchItems, setTouchItems] = React.useState([]);
+  const [layoutHeight, setLayoutHeight] = React.useState(0);
 
-  const doubleTapRef = React.createRef();
-  const _onHandlerStateChange = event => {
-    if (event.nativeEvent.state === State.ACTIVE) {
-      alert("I'm being pressed for so long");
-    }
-  };
-  const _onSingleTap = event => {
-    if (event.nativeEvent.state === State.ACTIVE) {
-      alert("I'm touched");
-    }
-  };
-  const _onDoubleTap = event => {
-    if (event.nativeEvent.state === State.ACTIVE) {
-      alert('D0able tap, good job!');
-    }
+  const numColumn = layoutHeight ? Math.ceil(layoutHeight / ITEM_SIZE) : 0;
+
+  const getArray = (num = 0, word = '') => {
+    return Array.from(Array(num), (_, item) => word + item);
   };
 
-  const btn = arrTouch.map((item, index) => {
+  const setHeight = data => {
+    const {height} = data.nativeEvent.layout;
+
+    setLayoutHeight(height);
+  };
+
+  const renderRow = row => {
+    const isTouch = touchItems.find(item => item === row) || false;
+
     return (
-      //       <TouchableOpacity
-      //         // {...panResponder.panHandlers}
-      //         // onPress={() => handlePressBtn(item, index)}
-      //         onPressIn={() => handlePressBtn(item, index)}
-      // >
-      //         <View
-      //           // disableIntervalMomentum={true}
-      //           // disableScrollViewPanResponder={true}
-      //           // scrollEnabled={false}
-      //           // onTouchMove={() => handlePressBtn(item, index)}
-      //           onMoveShouldSetResponder={() => console.log('hihi')}
-      //           onResponderTerminate={() => console.log('haha')}
-      //           key={index}
-      //           style={{
-      //             backgroundColor: item.touch ? 'white' : 'royalblue',
-      //             left: item.touch ? -1000 : 0,
-      //             width: 50,
-      //             height: 50,
-      //             margin: 4,
-      //           }}
-      //         />
-      //       </TouchableOpacity>
-      <LongPressGestureHandler
-        onHandlerStateChange={_onHandlerStateChange}
-        minDurationMs={800}>
-        <TapGestureHandler
-          onHandlerStateChange={_onSingleTap}
-          waitFor={doubleTapRef}>
-          <TapGestureHandler
-            ref={doubleTapRef}
-            onHandlerStateChange={_onDoubleTap}
-            numberOfTaps={2}>
-            <TouchableOpacity
-              style={{
-                backgroundColor: item.touch ? 'white' : 'royalblue',
-                left: item.touch ? -1000 : 0,
-                width: 50,
-                height: 50,
-                margin: 4,
-              }}
-              onPress={() => alert('haha')}
-            />
-          </TapGestureHandler>
-        </TapGestureHandler>
-      </LongPressGestureHandler>
+      <View key={row} style={styles.itemContainer}>
+        <View style={[styles.item, isTouch && styles.itemTouch]} />
+      </View>
     );
-  });
+  };
+
+  const renderColumn = column => {
+    return (
+      <View key={column} style={{flexDirection: 'row'}}>
+        {getArray(10, column + '-row-').map(renderRow)}
+      </View>
+    );
+  };
+
+  const checkIsTouch = (column, row) => {
+    return touchItems.find(item => item === 'column-' + column + '-row-' + row)
+      ? true
+      : false;
+  };
+
+  const onGestureEvent = data => {
+    const {absoluteX, absoluteY} = data.nativeEvent;
+
+    const column = Math.ceil((absoluteY - STATUS_BAR_HEIGHT) / ITEM_SIZE) - 1;
+    const row = Math.ceil(absoluteX / ITEM_SIZE) - 1;
+
+    restart();
+    if (checkIsTouch(column, row) === false) {
+      setTouchItems(prev => [...prev, 'column-' + column + '-row-' + row]);
+    }
+  };
+
+  const onHandlerStateChange = event => {
+    if (event.nativeEvent.oldState === State.ACTIVE) {
+      console.log('itemmsmms', typeof ITEM_SIZE);
+      console.log(numColumn);
+      // Event Ketika touch berakhir
+      // CARA AMBIL JUMLAH KOTAKNHYA GIMANAA
+      if (touchItems.length >= 8 * numColumn) {
+        touchSuccessHandler();
+      }
+    }
+  };
+
+  // START
+  // const btn = (item, index) => {
+  //   return (
+
+  //   );
+  // };
 
   const handleRestart = () => {
     setCapacity('On Process');
@@ -637,7 +625,16 @@ const Testing = () => {
               flexWrap: 'wrap',
               justifyContent: 'center',
             }}>
-            {btn}
+            <SafeAreaView style={{flex: 1}}>
+              <PanGestureHandler
+                onGestureEvent={onGestureEvent}
+                onHandlerStateChange={onHandlerStateChange}
+                maxPointers={1}>
+                <View style={{flex: 1}} onLayout={setHeight}>
+                  {getArray(numColumn, 'column-').map(renderColumn)}
+                </View>
+              </PanGestureHandler>
+            </SafeAreaView>
             <View
               style={{
                 position: 'absolute',
@@ -653,7 +650,9 @@ const Testing = () => {
         </ModalCamera>
       </View>
       <View style={styles.headerContainer}>
-        <TouchableOpacity style={styles.backContainer}>
+        <TouchableOpacity
+          onPress={() => navigate('Home')}
+          style={styles.backContainer}>
           <Image source={BackIcon} style={styles.backIcon} />
         </TouchableOpacity>
         <Image source={Logo} style={styles.logoIcon} />
@@ -853,7 +852,7 @@ const Testing = () => {
           style={styles.btn}
           onPress={() =>
             volumeDownStatus === 'Gagal' || volumeDownStatus === 'Baik'
-              ? navigate('Result', {updatez: !update})
+              ? navigation.replace('Result', {updatez: !update})
               : null
           }>
           <Text style={styles.btnText}>

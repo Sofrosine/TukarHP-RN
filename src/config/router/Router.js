@@ -29,7 +29,7 @@ const Router = () => {
   const Stack = createStackNavigator();
 
   return (
-    <Stack.Navigator initialRouteName="Home" headerMode="none">
+    <Stack.Navigator initialRouteName="SplashScreen" headerMode="none">
       <Stack.Screen name="SplashScreen" component={SplashScreen} />
       <Stack.Screen name="Home" component={Home} />
       <Stack.Screen name="Testing" component={Testing} />

@@ -1,10 +1,24 @@
-import {StyleSheet} from 'react-native';
+import {StyleSheet, Dimensions} from 'react-native';
 import {
   heightPercentageToDP as hp,
   widthPercentageToDP as wp,
 } from 'react-native-responsive-screen';
+const {width} = Dimensions.get('screen');
+const ITEM_SIZE = width / 8;
 
 const style = StyleSheet.create({
+  itemContainer: {
+    width: ITEM_SIZE,
+    aspectRatio: 1,
+    padding: 2.5,
+  },
+  item: {
+    flex: 1,
+    backgroundColor: '#d9184b',
+  },
+  itemTouch: {
+    backgroundColor: 'transparent',
+  },
   container: {
     flex: 1,
     backgroundColor: 'rgb(254,249,255)',
