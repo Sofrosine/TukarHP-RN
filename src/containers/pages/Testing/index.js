@@ -60,6 +60,7 @@ const Testing = ({navigation}) => {
   const [simStatus, setSimStatus] = useState('Antri');
   const [accelerometer, setAccelerometer] = useState('On Process');
   const [accelerometerStatus, setAccelerometerStatus] = useState('Antri');
+  const [failedPoint, setFailedPoint] = useState(0);
 
   const [camera, setCamera] = useState('On Process');
   const [cameraStatus, setCameraStatus] = useState('Antri');
@@ -111,6 +112,7 @@ const Testing = ({navigation}) => {
       setCapacityStatus('Gagal');
       setVisibleWifi(true);
       setWifiStatus('Proses');
+      setFailedPoint(failedPoint + 1);
     }
   };
 
@@ -132,6 +134,7 @@ const Testing = ({navigation}) => {
         setWifi('Failed');
         setWifiStatus('Gagal');
         setSimStatus('Proses');
+        setFailedPoint(failedPoint + 1);
         simHandler();
       }
     };
@@ -149,6 +152,7 @@ const Testing = ({navigation}) => {
         setVisibleWifi(false);
         setWifi('Failed');
         setWifiStatus('Gagal');
+        setFailedPoint(failedPoint + 1);
       }
     };
     wifiRestartStatus ? fail() : go();
@@ -188,8 +192,8 @@ const Testing = ({navigation}) => {
         setCamera('Success');
         setCameraStatus('Baik');
         volumeUpHandler();
-      }, 500);
-    }, 4000);
+      }, 3000);
+    }, 3000);
   };
 
   const volumeUpHandler = async () => {
@@ -216,6 +220,7 @@ const Testing = ({navigation}) => {
 
   const volumeUpFailed = async () => {
     await setModalVolumeUp(false);
+    await setFailedPoint(failedPoint + 1);
     setVolumeUp('Failed');
     setVolumeUpStatus('Gagal');
     volumeUpRestartStatus
@@ -251,6 +256,7 @@ const Testing = ({navigation}) => {
     await setModalVolumeDown(false);
     await setVolumeDown('Failed');
     await setVolumeDownStatus('Gagal');
+    await setFailedPoint(failedPoint + 1);
     const fail = () => {
       setVolumeDown('Failed');
       setVolumeDownStatus('Gagal');
@@ -666,9 +672,7 @@ const Testing = ({navigation}) => {
           <Text style={styles.infoPhoneText1(0)}>
             Status:{' '}
             <Text style={styles.infoPhoneText2}>
-              {volumeDownStatus === 'Gagal' || volumeDownStatus === 'Baik'
-                ? 'Baik'
-                : 'Memeriksa..'}
+              {failedPoint > 0 ? 'Kurang Baik' : 'Baik'}
             </Text>
           </Text>
         </View>

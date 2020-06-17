@@ -5,7 +5,6 @@ import android.content.Context;
 import com.facebook.react.PackageList;
 import com.facebook.react.ReactApplication;
 import com.robinpowered.react.vitals.RNVitalsPackage;
-import com.rtmalone.volumecontrol.RNVolumeControlPackage;
 import com.sensors.RNSensorsPackage;
 import com.facebook.react.ReactNativeHost;
 import com.facebook.react.ReactPackage;
